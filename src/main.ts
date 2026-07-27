@@ -54,28 +54,120 @@ sketchArea.style.cssText = 'margin:18px auto; width:320px; height:320px; border:
 document.querySelector<HTMLDivElement>('#app')!.appendChild(sketchArea);
 
 function renderTemplate(name = 'default') {
-  const svg = `
-    <svg id="faceSvg" viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <filter id="grain"><feTurbulence baseFrequency="0.8" numOctaves="1" seed="2" result="t"/><feColorMatrix type="saturate" values="0"/></filter>
-      </defs>
-      <g stroke="#222" stroke-linecap="round" stroke-linejoin="round" fill="none">
-        <circle id="head" cx="100" cy="100" r="70" stroke-width="2" />
-        <path id="hair" d="M30 70 C55 20 145 20 170 70" stroke-width="6" stroke="#3b2b1f" />
-        <g id="eyes">
-          <ellipse id="leftEye" cx="75" cy="95" rx="10" ry="6" stroke-width="1.8" />
-          <ellipse id="rightEye" cx="125" cy="95" rx="10" ry="6" stroke-width="1.8" />
-          <circle id="leftIris" cx="75" cy="95" r="4" fill="#666" />
-          <circle id="rightIris" cx="125" cy="95" r="4" fill="#666" />
-          <circle id="leftPupil" cx="75" cy="95" r="1.6" fill="#111" />
-          <circle id="rightPupil" cx="125" cy="95" r="1.6" fill="#111" />
+  let svg = '';
+  // A set of small stylized, non-photorealistic templates for quick starting points.
+  if (name === 'aamir') {
+    svg = `
+      <svg id="faceSvg" viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#111" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <path id="head" d="M50 110 C60 50 140 50 150 110 C140 160 60 160 50 110 Z" stroke-width="2" />
+          <path id="hair" d="M40 70 C60 30 140 30 160 70" stroke-width="5" />
+          <g id="eyes">
+            <ellipse id="leftEye" cx="75" cy="100" rx="9" ry="5" stroke-width="1.6" />
+            <ellipse id="rightEye" cx="125" cy="100" rx="9" ry="5" stroke-width="1.6" />
+            <circle id="leftIris" cx="75" cy="100" r="3.6" fill="#444" />
+            <circle id="rightIris" cx="125" cy="100" r="3.6" fill="#444" />
+          </g>
+          <path id="mouth" d="M80 138 q20 12 40 0" stroke-width="2" />
         </g>
-        <path id="mouth" d="M75 130 Q100 150 125 130" stroke-width="2.4" />
-        <line id="scar" x1="140" y1="120" x2="160" y2="100" stroke="#a33" stroke-width="2.5" visibility="hidden" />
-      </g>
-      <g id="glassesGroup" />
-    </svg>
-  `;
+      </svg>
+    `;
+  } else if (name === 'tom') {
+    svg = `
+      <svg id="faceSvg" viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#111" fill="none">
+          <path id="head" d="M45 110 C65 40 135 40 155 110 C140 155 60 155 45 110 Z" stroke-width="2" />
+          <path id="hair" d="M50 60 C70 35 130 35 150 60" stroke-width="5" />
+          <path id="mouth" d="M70 140 Q100 155 130 140" stroke-width="2" />
+        </g>
+      </svg>
+    `;
+  } else if (name === 'leonardo') {
+    svg = `
+      <svg id="faceSvg" viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#111" fill="none">
+          <path id="head" d="M50 110 C70 45 130 45 150 110 C140 160 60 160 50 110 Z" stroke-width="2" />
+          <path id="beard" d="M70 135 C90 150 110 150 130 135" stroke-width="2.4" />
+          <path id="hair" d="M45 70 C70 30 130 30 155 70" stroke-width="4" />
+        </g>
+      </svg>
+    `;
+  } else if (name === 'scarlett') {
+    svg = `
+      <svg id="faceSvg" viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#111" fill="none">
+          <oval id="head" cx="100" cy="105" rx="50" ry="65" stroke-width="2" />
+          <path id="longhair" d="M40 70 C60 140 140 140 160 70" stroke-width="4" />
+          <g id="eyes"><circle id="leftIris" cx="75" cy="95" r="3.6" fill="#444" /><circle id="rightIris" cx="125" cy="95" r="3.6" fill="#444"/></g>
+        </g>
+      </svg>
+    `;
+  } else if (name === 'brad') {
+    svg = `
+      <svg id="faceSvg" viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#111" fill="none">
+          <path id="head" d="M45 110 C65 45 135 45 155 110 C145 155 55 155 45 110 Z" stroke-width="2" />
+          <path id="stubble" d="M70 135 C90 148 110 148 130 135" stroke-width="1.6" />
+        </g>
+      </svg>
+    `;
+  } else if (name === 'angelina') {
+    svg = `
+      <svg id="faceSvg" viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#111" fill="none">
+          <path id="head" d="M50 100 C70 40 130 40 150 100 C140 150 60 150 50 100 Z" stroke-width="2" />
+          <path id="lips" d="M85 135 q15 8 30 0" stroke-width="2" />
+        </g>
+      </svg>
+    `;
+  } else if (name === 'keanu') {
+    svg = `
+      <svg id="faceSvg" viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#111" fill="none">
+          <path id="head" d="M45 110 C65 45 135 45 155 110 C145 155 55 155 45 110 Z" stroke-width="2" />
+          <path id="longhair" d="M40 70 C60 30 140 30 160 70" stroke-width="4" />
+          <path id="beard" d="M75 135 C95 150 105 150 125 135" stroke-width="1.8" />
+        </g>
+      </svg>
+    `;
+  } else if (name === 'emma') {
+    svg = `
+      <svg id="faceSvg" viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#111" fill="none">
+          <path id="head" d="M50 100 C70 45 130 45 150 100 C140 145 60 145 50 100 Z" stroke-width="2" />
+          <path id="hair" d="M40 70 C70 40 130 40 160 70" stroke-width="3" />
+        </g>
+      </svg>
+    `;
+  } else if (name === 'morgan') {
+    svg = `
+      <svg id="faceSvg" viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#111" fill="none">
+          <path id="head" d="M50 105 C65 50 135 50 150 105 C145 150 55 150 50 105 Z" stroke-width="2" />
+          <path id="mustache" d="M80 125 q20 8 40 0" stroke-width="2" />
+        </g>
+      </svg>
+    `;
+  } else {
+    svg = `
+      <svg id="faceSvg" viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="grain"><feTurbulence baseFrequency="0.8" numOctaves="1" seed="2" result="t"/><feColorMatrix type="saturate" values="0"/></filter>
+        </defs>
+        <g stroke="#222" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <circle id="head" cx="100" cy="100" r="70" stroke-width="2" />
+          <path id="hair" d="M30 70 C55 20 145 20 170 70" stroke-width="6" />
+          <g id="eyes">
+            <ellipse id="leftEye" cx="75" cy="95" rx="10" ry="6" stroke-width="1.8" />
+            <ellipse id="rightEye" cx="125" cy="95" rx="10" ry="6" stroke-width="1.8" />
+            <circle id="leftIris" cx="75" cy="95" r="4" fill="#666" />
+            <circle id="rightIris" cx="125" cy="95" r="4" fill="#666" />
+          </g>
+          <path id="mouth" d="M75 130 Q100 150 125 130" stroke-width="2.4" />
+        </g>
+      </svg>
+    `;
+  }
   sketchArea.innerHTML = svg;
 }
 
@@ -127,6 +219,25 @@ function applyModifiers(text: string) {
   // If user requests a template face, re-render the base template
   if (/template/.test(t)) {
     renderTemplate('default');
+  }
+
+  // celebrity detection: render known templates when user names them
+  const celebMap: [RegExp, string][] = [
+    [/aamir\s*khan|aamir|amir\s*khan/, 'aamir'],
+    [/tom\s*cruise|tom\b/, 'tom'],
+    [/leonardo\s*dicaprio|leonardo|leo\b/, 'leonardo'],
+    [/scarlett\s*johansson|scarlett|scarlett\b/, 'scarlett'],
+    [/brad\s*pitt|brad\b/, 'brad'],
+    [/angelina\s+jolie|angelina|jolie\b/, 'angelina'],
+    [/keanu\s*reeves|keanu|reeves\b/, 'keanu'],
+    [/emma\s*watson|emma\b/, 'emma'],
+    [/morgan\s*freeman|morgan|freeman\b/, 'morgan'],
+  ];
+  for (const [re, key] of celebMap) {
+    if (re.test(t)) {
+      renderTemplate(key);
+      break;
+    }
   }
 
   // hair color: support "brown hair" and "hair color brown" and hex
