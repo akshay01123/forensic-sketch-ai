@@ -16,6 +16,120 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   </div>
 `
 
+// Photo upload / sketch conversion UI
+document.querySelector<HTMLDivElement>('#app')!.insertAdjacentHTML('beforeend', `
+  <div style="text-align:center; margin-top:18px;">
+    <h3>Upload reference photo (use your own/licensed images)</h3>
+    <input id="photoInput" type="file" accept="image/*" />
+    <div style="margin-top:8px;">
+      <img id="photoPreview" style="max-width:320px; max-height:240px; border:1px solid #ccc; display:block; margin:8px auto;" />
+    </div>
+    <button id="toSketch" style="margin-top:6px;">Convert to Sketch</button>
+    <div style="margin-top:8px;">
+      <canvas id="sketchCanvas" width="320" height="320" style="border:1px solid #ccc; background:#fff;"></canvas>
+    </div>
+    <div style="font-size:12px; color:#666; margin-top:6px;">Only upload images you own or are licensed to use.</div>
+  </div>
+`);
+
+const photoInput = document.getElementById('photoInput') as HTMLInputElement | null;
+const photoPreview = document.getElementById('photoPreview') as HTMLImageElement | null;
+const toSketchBtn = document.getElementById('toSketch') as HTMLButtonElement | null;
+const sketchCanvas = document.getElementById('sketchCanvas') as HTMLCanvasElement | null;
+
+photoInput?.addEventListener('change', (e) => {
+  const f = (e.target as HTMLInputElement).files?.[0];
+  if (!f) return;
+  const url = URL.createObjectURL(f);
+  if (photoPreview) photoPreview.src = url;
+  if (sketchCanvas) {
+    const ctx = sketchCanvas.getContext('2d');
+    if (ctx) {
+      ctx.clearRect(0,0,sketchCanvas.width, sketchCanvas.height);
+    }
+  }
+});
+
+toSketchBtn?.addEventListener('click', async () => {
+  const img = photoPreview;
+  if (!img || !img.src) {
+    if (output) output.textContent = 'Please select a photo first.';
+    return;
+  }
+  if (!sketchCanvas) return;
+  // draw image to canvas scaled to fit
+  const ctx = sketchCanvas.getContext('2d');
+  if (!ctx) return;
+  const tmp = new Image();
+  tmp.crossOrigin = 'anonymous';
+  tmp.onload = () => {
+    const cw = sketchCanvas.width;
+    const ch = sketchCanvas.height;
+    // scale preserving aspect
+    const ratio = Math.min(cw / tmp.width, ch / tmp.height);
+    const w = tmp.width * ratio;
+    const h = tmp.height * ratio;
+    ctx.clearRect(0,0,cw,ch);
+    ctx.drawImage(tmp, (cw - w) / 2, (ch - h) / 2, w, h);
+    // process to sketch
+    const imgData = ctx.getImageData(0,0,cw,ch);
+    const gray = grayscale(imgData);
+    const edges = sobelEdgeDetect(gray, cw, ch);
+    // render inverted edges (black lines on white)
+    const out = ctx.createImageData(cw, ch);
+    for (let i = 0; i < edges.length; i++) {
+      const v = 255 - Math.min(255, Math.round(edges[i]));
+      out.data[i*4+0] = v;
+      out.data[i*4+1] = v;
+      out.data[i*4+2] = v;
+      out.data[i*4+3] = 255;
+    }
+    ctx.putImageData(out, 0, 0);
+    if (output) output.textContent = 'Sketch generated from uploaded photo.';
+  };
+  tmp.src = img.src;
+});
+
+function grayscale(imgData: ImageData) {
+  const {data, width, height} = imgData;
+  const out = new Uint8ClampedArray(width * height);
+  for (let i = 0; i < width * height; i++) {
+    const r = data[i*4];
+    const g = data[i*4+1];
+    const b = data[i*4+2];
+    out[i] = 0.299*r + 0.587*g + 0.114*b;
+  }
+  return out;
+}
+
+function sobelEdgeDetect(gray: Uint8ClampedArray, width: number, height: number) {
+  const gx = [-1,0,1,-2,0,2,-1,0,1];
+  const gy = [-1,-2,-1,0,0,0,1,2,1];
+  const out = new Float32Array(width * height);
+  for (let y = 1; y < height-1; y++) {
+    for (let x = 1; x < width-1; x++) {
+      let sx = 0, sy = 0;
+      let k = 0;
+      for (let ky = -1; ky <= 1; ky++) {
+        for (let kx = -1; kx <= 1; kx++) {
+          const v = gray[(y+ky)*width + (x+kx)];
+          sx += gx[k] * v;
+          sy += gy[k] * v;
+          k++;
+        }
+      }
+      const mag = Math.hypot(sx, sy);
+      out[y*width + x] = mag;
+    }
+  }
+  // normalize
+  let max = 0;
+  for (let i = 0; i < out.length; i++) if (out[i] > max) max = out[i];
+  if (max === 0) max = 1;
+  for (let i = 0; i < out.length; i++) out[i] = (out[i] / max) * 255;
+  return out;
+}
+
 function escapeHtml(s: string) {
   return s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
 }
