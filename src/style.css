@@ -15,6 +15,12 @@
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
+  /* new visual tokens */
+  --bg-gradient: linear-gradient(135deg, rgba(170,59,255,0.08), rgba(34,197,94,0.04));
+  --glass-bg: rgba(255,255,255,0.06);
+  --glass-border: rgba(255,255,255,0.08);
+  --card-radius: 14px;
+  --transition-medium: 200ms cubic-bezier(.2,.9,.2,1);
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
   color-scheme: light dark;
@@ -52,6 +58,11 @@
 
 body {
   margin: 0;
+  background-image: var(--bg-gradient);
+  background-attachment: fixed;
+  background-color: var(--bg);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  -webkit-font-smoothing: antialiased;
 }
 
 h1,
@@ -309,8 +320,9 @@ code {
   align-items: center;
   padding: 16px 20px;
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
-  box-shadow: var(--shadow);
+  background: transparent;
+  backdrop-filter: blur(6px) saturate(120%);
+  box-shadow: 0 6px 18px rgba(16,24,40,0.06);
 }
 .topbar .title {
   font-size: 18px;
@@ -334,10 +346,11 @@ code {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: var(--shadow);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--card-radius);
+  box-shadow: 0 8px 30px rgba(2,6,23,0.12);
+  backdrop-filter: blur(8px) saturate(120%);
   overflow: hidden;
 }
 .chat-header {
@@ -354,25 +367,37 @@ code {
   flex-direction: column;
   gap: 12px;
 }
-.message { display:flex; }
+.message { display:flex; animation: fadeUp 260ms var(--transition-medium) both; }
 .message.user { justify-content: flex-end; }
 .message.assistant { justify-content: flex-start; }
 .bubble {
   max-width: 78%;
-  padding: 12px 14px;
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  padding: 12px 16px;
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgba(2,6,23,0.06);
+  transition: transform var(--transition-medium), box-shadow var(--transition-medium), background var(--transition-medium);
 }
+.meta { display:block; margin-top:6px; }
+.timestamp { display:inline-block; font-size:12px; color: rgba(0,0,0,0.45); }
+.message.assistant .timestamp { color: rgba(255,255,255,0.6); }
 .message.user .bubble {
   background: linear-gradient(180deg, var(--accent), var(--accent-border));
   color: white;
-  border-bottom-right-radius: 4px;
+  border-bottom-right-radius: 6px;
+  border-top-right-radius: 6px;
 }
 .message.assistant .bubble {
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  border: 1px solid rgba(255,255,255,0.06);
   color: var(--text);
-  border-bottom-left-radius: 4px;
+  border-bottom-left-radius: 6px;
+  border-top-left-radius: 6px;
+}
+.bubble:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(2,6,23,0.08); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .input-area {
@@ -380,33 +405,43 @@ code {
   gap: 12px;
   padding: 12px;
   border-top: 1px solid var(--border);
-  background: linear-gradient(180deg, transparent, rgba(0,0,0,0.02));
+  background: transparent;
 }
 .input-area input[type="text"] {
   flex: 1 1 auto;
   padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--code-bg);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   color: var(--text-h);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
 }
-.btn { border: 0; padding: 8px 12px; border-radius: 8px; cursor: pointer; background: transparent; color: var(--text-h); }
-.btn.small { padding: 6px 10px; font-size: 13px; }
-.btn.primary { background: var(--accent); color: white; box-shadow: 0 6px 14px rgba(0,0,0,0.12); }
+.btn { border: 0; padding: 10px 14px; border-radius: 10px; cursor: pointer; background: transparent; color: var(--text-h); transition: transform var(--transition-medium), box-shadow var(--transition-medium), opacity var(--transition-medium); }
+.btn.small { padding: 8px 12px; font-size: 13px; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(2,6,23,0.06); }
+.btn.primary {
+  background: linear-gradient(90deg, var(--accent), #6ee7b7);
+  color: white;
+  box-shadow: 0 12px 30px rgba(34,197,94,0.12);
+}
+.btn.primary:active { transform: translateY(0); }
+
+.btn.small { background: rgba(255,255,255,0.02); }
 
 .sketch-panel {
   height: 100%;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--card-radius);
   overflow: hidden;
-  background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
-  box-shadow: var(--shadow);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  box-shadow: 0 10px 40px rgba(2,6,23,0.08);
+  backdrop-filter: blur(8px) saturate(120%);
 }
 .sketch-header { padding: 14px 16px; border-bottom: 1px solid var(--border); font-weight:600; }
 .sketch-body { display:flex; align-items:center; justify-content:center; flex:1 1 auto; padding: 20px; }
-.sketch-placeholder { width:100%; height:100%; border: 2px dashed rgba(150,150,150,0.12); border-radius:10px; display:flex; align-items:center; justify-content:center; color:var(--text); font-weight:600; background: linear-gradient(180deg, rgba(0,0,0,0.01), transparent); }
+.sketch-placeholder { width:100%; height:100%; border: 2px dashed rgba(150,150,150,0.08); border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--text); font-weight:600; background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent); transition: opacity var(--transition-medium); }
 
 .footer-note { padding: 10px 20px; text-align: center; color: var(--text); font-size: 13px; border-top: 1px solid var(--border); }
 
@@ -428,3 +463,6 @@ code {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .preview-image { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+
+/* subtle entrance for preview images */
+.preview-image { animation: fadeUp 360ms ease both; }
